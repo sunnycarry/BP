@@ -70,45 +70,64 @@ def GetNewsArticleText(url):
     article = []
     for a in articles:
         article.append(a.text)
-    #article = [a for a in article for r in remove_sign if a != r ]
+        
     strlist = []
     for a in article:
-        print(a)
-        sentences = re.split(r"[、，,。.（）：:」©!！.@?？\-─「．◎」》\[\]※\/►\s+]",a)
+        #print(a)
+        sentences = re.split(r"[、，,。.（）()：:」；©!！●.@?？\-─「／．◎」%《》\[\]※\/►\s+]",a)
         for sentence in sentences:
-            strlist.append(sentence)
+            if sentence != '':
+                strlist.append(sentence)
     print(strlist)
     return strlist
 
 def GetTone(word):
+    if re.search('[a-zA-Z0-9º¸¬ª]',word):
+        return ['eng','wrong']
     tones = pinyin(word,style = Style.TONE3)
     t = []
     for tone in tones:
         t.append(tone[0][-1])
     return t
 
-def CheckTone(tone) -> bool :
+def CheckTone(tone) -> [bool, str] :
     sample = tone[0]
     for i in range(1,len(tone)):
         if tone[i] != sample:
-            return False
-    return True
+            return [False,sample]
+    return [True,sample]
+
 
 if __name__ == "__main__":
     
-    title = GetWebSourceTitle()
-    urls = GetNewsUrl(title)
-
-
+    sources = GetWebSourceTitle()
+    urls = GetNewsUrl(sources)
+    
     for url in urls:
         articles = GetNewsArticleText(url)
         for article in articles:
             words = jieba.cut(article)
+            prev_tone = 'kkk'
+            prev_words = ''
             for w in words:
-                print(w)
                 t = GetTone(w)
-                print(CheckTone(t))
-   
+                result, tone = CheckTone(t)
+                if result:
+                    if tone == prev_tone:
+                        prev_words += w
+                    elif len(prev_words) >= 2:
+                        print(prev_words)
+                        prev_words = w
+                        prev_tone = tone
+                    else:
+                        prev_words = w
+                        prev_tone = tone
+                else:
+                    prev_word = ''
+                    prev_tone = 'kkk'
+            if len(prev_words) >= 2:
+                print(prev_words)
+    
     '''
     s = "二敗要做線上測驗"
     s = re.split(r"[、，。（）：]",s)
