@@ -76,7 +76,16 @@ public class getSocket: MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            client.Send(Encoding.UTF8.GetBytes("test"));
+        }
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            client.Send(Encoding.UTF8.GetBytes("exit"));
+        }
+        
     }
 }
 

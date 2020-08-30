@@ -20,31 +20,66 @@ sendData = {
       "name": "hrg",
       "age": "21"
     }
-  ]
-}
-
-sendData2 = {
-  "verb":
+  ],
+    "rangelist":
   [
     {
-      "s": "5",
-      "e": "9"
+      "tone": "1",
+      "range": ["11","21"]
     },
     {
-      "s": "3",
-      "e": "4"
+      "tone": "4",
+      "range": ["44","64"]
+    },
+    {
+      "tone": "3",
+      "range": ["53","73"]
     }
   ]
 }
 
+sendData2 = {
+  "rangelist":
+  [
+    {
+      "tone": "1",
+      "range": ["11","21"]
+    },
+    {
+      "tone": "4",
+      "range": ["44","64"]
+    },
+    {
+      "tone": "3",
+      "range": ["53","73"]
+    }
+  ]
+}
+
+msg = ""
+
+def message_recv(client_executor, addr):
+
+    while True:
+        global msg
+        msg = client_executor.recv(1024).encoding('utf-8')
+        if msg == 'exit':
+            break
+    
+
 # 当新的客户端连入时会调用这个方法
 def on_new_connection(client_executor, addr):
     print('Accept new connection from %s:%s...' % addr)
-
-    # 发送一个信息
-    #while(True):
     client_executor.send(bytes(repr(json.dumps(sendData)).encode('utf-8')))   #发送json信息
-
+    recv_thread = threading.Thread(target = message_recv, args= (client_executor, addr))
+    recv_thread.start()
+    
+    while msg != "exit":
+        print(msg)
+    
+    client_executor.send(bytes("Good Bye".encode('utf-8')))
+    
+    #client_executor.send(bytes(repr(json.dumps(sendData2)).encode('utf-8')))   #发送json信息
     client_executor.close()
     print('Connection from %s:%s closed.' % addr)
 
