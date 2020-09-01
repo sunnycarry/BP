@@ -128,13 +128,3 @@ if __name__ == "__main__":
             if len(prev_words) >= 2:
                 print(prev_words)
     
-    '''
-    s = "二敗要做線上測驗"
-    s = re.split(r"[、，。（）：]",s)
-    for word in s:
-        words = jieba.cut(word)
-        for w in words:
-            print(w)
-            t = GetTone(w)
-            print(CheckTone(t))
-    '''
