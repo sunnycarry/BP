@@ -57,7 +57,7 @@ sendData2 = {
   ]
 }
 
-msg = ""
+msg = "" 
 
 def message_recv(client_executor, addr):
 
