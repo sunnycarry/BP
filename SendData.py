@@ -8,6 +8,7 @@ Created on Tue Aug 18 15:10:34 2020
 import socket
 import threading
 import json
+import time
 
 sendData = {
   "infolist":
@@ -62,10 +63,7 @@ def message_recv(client_executor, addr):
 
     while True:
         global msg
-        msg = client_executor.recv(1024).encoding('utf-8')
-        if msg == 'exit':
-            break
-    
+        msg = client_executor.recv(1024).decode('utf-8')
 
 # 当新的客户端连入时会调用这个方法
 def on_new_connection(client_executor, addr):
@@ -75,17 +73,19 @@ def on_new_connection(client_executor, addr):
     recv_thread.start()
     
     while msg != "exit":
-        print(msg)
-    
-    client_executor.send(bytes("Good Bye".encode('utf-8')))
-    
-    #client_executor.send(bytes(repr(json.dumps(sendData2)).encode('utf-8')))   #发送json信息
+        if msg != "":
+            print(msg)
+
     client_executor.close()
     print('Connection from %s:%s closed.' % addr)
+        
+    
+    #client_executor.send(bytes(repr(json.dumps(sendData2)).encode('utf-8')))   #发送json信息
+    
 
 # 构建Socket实例、设置端口号  和监听队列大小
 listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-listener.bind(('127.0.0.1', 10087))
+listener.bind(('140.113.214.173', 10087))
 listener.listen(5)
 print('Waiting for connect...')
 
