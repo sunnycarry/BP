@@ -58,29 +58,44 @@ sendData2 = {
 }
 
 msg = "" 
-
-def message_recv(client_executor, addr):
-
-    while True:
-        global msg
+cal = 0
+callll = 0
+def message_recv(stop_event, client_executor, addr):
+    global msg
+    global cal
+    time.sleep(1)
+    stop_event.clear()
+    time.sleep(1)
+    while not stop_event.is_set():
+        cal += 1
+        print("call ",cal)
         msg = client_executor.recv(1024).decode('utf-8')
+        if msg == "exit":
+          stop_event.set()
+        else:
+          print(msg)
+          
+    print("end the thread")
 
-# 当新的客户端连入时会调用这个方法
+
+
 def on_new_connection(client_executor, addr):
     print('Accept new connection from %s:%s...' % addr)
-    client_executor.send(bytes(repr(json.dumps(sendData)).encode('utf-8')))   #发送json信息
-    recv_thread = threading.Thread(target = message_recv, args= (client_executor, addr))
+    client_executor.send(bytes(repr(json.dumps(sendData)).encode('utf-8'))) 
+
+    pill2kill = threading.Event()
+    recv_thread = threading.Thread(target = message_recv, args= (pill2kill, client_executor, addr))
     recv_thread.start()
     
     while msg != "exit":
-        if msg != "":
-            print(msg)
-
+        continue
+    
+    recv_thread.join()
     client_executor.close()
     print('Connection from %s:%s closed.' % addr)
         
-    
-    #client_executor.send(bytes(repr(json.dumps(sendData2)).encode('utf-8')))   #发送json信息
+    return
+
     
 
 # 构建Socket实例、设置端口号  和监听队列大小
